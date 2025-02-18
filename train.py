@@ -1,14 +1,21 @@
 import csv
 import matplotlib.pyplot as plt
+from colorama import Fore, init
+
+init(autoreset=True)
 
 mileage = []
 price = []
 
-with open("data.csv", "r") as file:
-    reader = csv.DictReader(file)
-    for row in reader:
-        mileage.append(float(row["km"]))
-        price.append(float(row["price"]))
+try:
+    with open("data.csv", "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            mileage.append(float(row["km"]))
+            price.append(float(row["price"]))
+except Exception as e:
+    print("❌ FILE NOT FOUND ❌")
+    exit()
 
 def normalize(data):
     mean = sum(data) / len(data)
@@ -37,16 +44,19 @@ for _ in range(epochs):
     tmp_theta1 = learning_rate * (1/m) * error_mileage_sum
     theta0 -= tmp_theta0
     theta1 -= tmp_theta1
+try:
+    with open("theta.txt", "w") as file2:
+        file2.write(f"{theta0}\n{theta1}\n{mileage_mean}\n{mileage_std}\n{price_mean}\n{price_std}")
 
-with open("theta.txt", "w") as file2:
-    file2.write(f"{theta0}\n{theta1}\n{mileage_mean}\n{mileage_std}\n{price_mean}\n{price_std}")
+    plt.title("My Bonus Part, Made by ahkalama")
+    plt.scatter(mileage_normalized, price_normalized, c=mileage_normalized, label="Real Data", marker="*", s=100)
+    plt.plot(mileage_normalized, [theta0 + theta1 * x for x in mileage_normalized], color="red", label="Regression Line")
+    plt.xlabel("Mileage (Normalized)")
+    plt.ylabel("Price (Normalized)")
+    plt.legend()
+    plt.show()
+except KeyboardInterrupt:
+    print(Fore.CYAN + "\n[Successful exit]")
+    exit()
 
-plt.title("My Bonus Part, Made by ahkalama")
-plt.scatter(mileage_normalized, price_normalized, color="blue", label="Real Data")
-plt.plot(mileage_normalized, [theta0 + theta1 * x for x in mileage_normalized], color="red", label="Regression Line")
-plt.xlabel("Mileage (Normalized)")
-plt.ylabel("Price (Normalized)")
-plt.legend()
-plt.show()
-
-print(f"Completed training! theta0: {theta0:.2f}, theta1: {theta1:.2f}")
+print(f"✅ Completed training! theta0: {theta0:.2f}, theta1: {theta1:.2f}")
